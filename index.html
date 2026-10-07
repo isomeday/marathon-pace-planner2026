@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>マラソンペースプランナー | Marathon Pace Planner</title>
+<meta name="description" content="区間ごとのペースを入力すると、1kmごとの通過時刻と5kmラップを計算するマラソンのペース計算ツールです。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8F%83%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDEFF3; --panel:#FFFFFF; --ink:#101828; --muted:#5B667A; --line:#D9DEE6; --soft:#F5F7FA;
+  --blue:#1B4FD8; --blue-soft:#E5ECFD; --slate:#8792A5; --orange:#E8590C; --ok:#0F9D63; --bad:#D92D20;
+  --hero:#0F1B2D; --hero-ink:#F3F6FB; --hero-muted:#9FB0C8; --hero-ok:#6EE0A9; --hero-bad:#FF9B8F;
+  --band:rgba(27,79,216,.06); --grid:#E3E7ED;
+  --sans:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
+  --num:"Barlow Condensed","Arial Narrow","Hiragino Sans","Yu Gothic UI",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1118; --panel:#141B25; --ink:#E7ECF4; --muted:#93A0B5; --line:#263041; --soft:#101722;
+    --blue:#6E94FF; --blue-soft:#18264A; --slate:#6F7B90; --orange:#FF8A4C; --ok:#4FD39B; --bad:#FF7A70;
+    --hero:#0A1930; --band:rgba(110,148,255,.08); --grid:#1E2837;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1118; --panel:#141B25; --ink:#E7ECF4; --muted:#93A0B5; --line:#263041; --soft:#101722;
+  --blue:#6E94FF; --blue-soft:#18264A; --slate:#6F7B90; --orange:#FF8A4C; --ok:#4FD39B; --bad:#FF7A70;
+  --hero:#0A1930; --band:rgba(110,148,255,.08); --grid:#1E2837;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+.app{max-width:1480px;margin:0 auto;padding:28px 28px 56px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:22px;padding-bottom:18px;border-bottom:4px solid var(--blue)}
+.top h1{margin:0;font-size:30px;line-height:1.2;font-weight:700;letter-spacing:.01em}
+.top h1 small{font-family:var(--num);font-size:20px;font-weight:500;letter-spacing:.04em;color:var(--muted);margin-left:14px}
+.top p{margin:6px 0 0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:372px minmax(0,1fr);gap:24px;align-items:start}
+.side{position:sticky;top:16px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 32px);overflow:auto;padding-right:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.panel h2{margin:0 0 10px;font-size:16px;font-weight:700}
+.field{display:grid;grid-template-columns:108px 1fr;align-items:center;gap:4px 10px;margin-bottom:8px}
+.field label{color:var(--muted);font-size:13.5px}
+.field input{width:100%;border:1px solid var(--line);background:var(--soft);border-radius:6px;padding:7px 10px;font-family:var(--num);font-size:19px;font-weight:600;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.field input[type=text].txt{font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:0}
+.field .hint{grid-column:2;margin-top:-2px;color:var(--muted);font-size:12.5px}
+select{width:100%;border:1px solid var(--line);background:var(--soft);border-radius:6px;padding:7px 8px;font-family:var(--num);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.ctl{display:flex;gap:6px;align-items:center;min-width:0}
+.ctl input,.ctl select{flex:1;min-width:0;width:auto}
+.rs{flex:none;width:32px;height:34px;border:1px solid var(--blue);border-radius:6px;background:var(--blue-soft);color:var(--blue);cursor:pointer;font-size:17px;line-height:1;padding:0}
+.rs[hidden]{display:none}
+.extnote{display:grid;grid-template-columns:128px 1fr;gap:4px 10px;margin:-2px 0 10px;font-size:12.5px;color:var(--muted);line-height:1.5}
+.extnote .l{font-family:var(--num);font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;font-variant-numeric:tabular-nums}
+.btn[hidden]{display:none}
+.hero-race{font-size:21px;font-weight:700;margin-bottom:10px;line-height:1.3;overflow-wrap:anywhere}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+input.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--panel))}
+.seg{display:grid;grid-template-columns:22px 1fr auto 26px;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+.seg:first-of-type{border-top:0}
+.seg-no{width:22px;height:22px;border-radius:50%;background:var(--blue-soft);color:var(--blue);font-family:var(--num);font-weight:700;font-size:14px;display:grid;place-items:center}
+.range{display:flex;align-items:center;gap:6px;font-family:var(--num);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.range .start{min-width:30px;text-align:right;color:var(--muted)}
+.range .tilde{color:var(--muted);font-family:var(--sans);font-size:13px}
+.range .unit,.pace .unit{font-family:var(--sans);font-size:12.5px;color:var(--muted);font-weight:400}
+.range .goal{font-family:var(--sans);font-size:14px;font-weight:700;padding:5px 8px;background:var(--soft);border-radius:6px;width:70px;text-align:center}
+.seg input{width:70px;border:1px solid var(--line);background:var(--soft);border-radius:6px;padding:5px 8px;font-family:var(--num);font-size:19px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.pace{display:flex;align-items:center;gap:4px}
+.pace input{width:72px;border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}
+.x{width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:18px;line-height:1}
+.x:hover{background:var(--soft);color:var(--bad)}
+.x:disabled{opacity:.3;cursor:default}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:7px 12px;cursor:pointer;font-size:14px}
+.btn:hover{background:var(--soft)}
+.btn.primary{border-color:var(--blue);color:var(--blue);font-weight:700}
+.err{display:none;margin-bottom:12px;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--bad) 10%,var(--panel));border:1px solid var(--bad);color:var(--bad);font-size:13.5px}
+.err.on{display:block}
+.save-note{color:var(--muted);font-size:12.5px;margin:2px 2px 0}
+
+.main{display:flex;flex-direction:column;gap:20px;min-width:0}
+.hero{display:grid;grid-template-columns:minmax(380px,1.15fr) 2fr;gap:0;background:var(--hero);color:var(--hero-ink);border-radius:12px;overflow:hidden}
+.hero-main{padding:24px 28px}
+.hero-label{color:var(--hero-muted);font-size:14px}
+.hero-num{font-family:var(--num);font-weight:700;font-size:88px;line-height:1;letter-spacing:.01em;font-variant-numeric:tabular-nums;margin:6px 0 4px}
+.hero-sub{color:var(--hero-muted);font-size:13.5px}
+.hero-stats{display:grid;grid-template-columns:repeat(2,1fr);border-left:1px solid rgba(255,255,255,.12)}
+.hero-stats div{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,.12)}
+.hero-stats div:nth-last-child(-n+2){border-bottom:0}
+.hero-stats div:nth-child(odd){border-right:1px solid rgba(255,255,255,.12)}
+.hero-stats dt{color:var(--hero-muted);font-size:13px}
+.hero-stats dd{margin:2px 0 0;font-family:var(--num);font-size:34px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums}
+.hero-stats dd.ok{color:var(--hero-ok)} .hero-stats dd.bad{color:var(--hero-bad)}
+.hero-stats dd.jp{font-family:var(--sans);font-size:24px;font-weight:700}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 18px 12px;min-width:0}
+.card-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:16px;font-weight:700}
+.card-h p{margin:0;color:var(--muted);font-size:13px}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart svg text{font-family:var(--num);font-variant-numeric:tabular-nums}
+.chart svg .jp{font-family:var(--sans)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--panel);border-radius:6px;padding:6px 9px;font-size:13px;line-height:1.45;white-space:nowrap;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.tip b{font-family:var(--num);font-size:16px;font-weight:600}
+.note{margin:6px 2px 4px;color:var(--muted);font-size:12.5px}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.toggle button{border:0;background:transparent;padding:6px 14px;cursor:pointer;font-size:14px;color:var(--muted)}
+.toggle button[aria-pressed=true]{background:var(--blue);color:#fff;font-weight:700}
+.bar-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bar-h span{color:var(--muted);font-size:13.5px}
+
+.tbl-wrap{max-height:620px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:separate;border-spacing:0;width:100%;font-family:var(--num);font-variant-numeric:tabular-nums;font-size:18px}
+th,td{padding:3px 14px;text-align:right;white-space:nowrap;background:var(--panel)}
+thead th{position:sticky;z-index:2;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--muted);background:var(--soft);height:32px;border-bottom:1px solid var(--line)}
+thead tr:first-child th{top:0}
+thead tr:nth-child(2) th{top:32px}
+thead th.grp{text-align:center;color:var(--ink);border-left:1px solid var(--line)}
+th.sepl,td.sepl{border-left:1px solid var(--line)}
+td.km{text-align:left;font-weight:700;color:var(--muted)}
+tr.k5 td{font-weight:700;background:var(--soft)}
+tr.k5 td.km{color:var(--ink)}
+tr.sg td{border-top:2px solid var(--blue)}
+td.dim{color:var(--muted)}
+td.ext{color:var(--blue)}
+@media (prefers-reduced-motion:no-preference){ .hero-num{transition:opacity .15s} }
+@media (max-width:1100px){
+  .grid{grid-template-columns:1fr}
+  .side{position:static;max-height:none;overflow:visible}
+  .row2{grid-template-columns:1fr}
+  .hero{grid-template-columns:1fr}
+  .hero-stats{border-left:0;border-top:1px solid rgba(255,255,255,.12)}
+  .hero-num{font-size:72px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <h1>マラソンペースプランナー<small>Marathon Pace Planner</small></h1>
+      <p>区間ごとのペースを入力すると、1kmごとの通過時刻とグラフが変わります。</p>
+    </div>
+  </header>
+
+  <div class="grid">
+    <aside class="side">
+      <div class="panel">
+        <h2>レース設定</h2>
+        <div class="err" id="err" role="alert"></div>
+        <div class="field"><label for="f-race">大会名</label><div class="ctl"><input id="f-race" class="txt" type="text" data-f="race" data-key="race" autocomplete="off"><button type="button" class="rs" data-reset="race" hidden>↺</button></div></div>
+        <div class="field"><label for="f-gun">号砲時刻</label><div class="ctl"><input id="f-gun" type="text" inputmode="numeric" data-f="gun" data-key="gun" placeholder="8:30:00" autocomplete="off"><button type="button" class="rs" data-reset="gun" hidden>↺</button></div><div class="hint">例 8:30:00</div></div>
+        <div class="field"><label for="f-wait">スタートまで</label><div class="ctl"><input id="f-wait" type="text" inputmode="numeric" data-f="wait" data-key="wait" placeholder="3:00" autocomplete="off"><button type="button" class="rs" data-reset="wait" hidden>↺</button></div><div class="hint">例 3:00</div></div>
+        <div class="field"><label for="f-ext">延長距離</label><div class="ctl"><select id="f-ext" data-f="ext" data-key="ext"></select><button type="button" class="rs" data-reset="ext" hidden>↺</button></div></div>
+        <div class="extnote"><div class="l" id="extInfo"></div><div class="r">公式距離とランニングウォッチの距離の想定誤差を入力します。50m刻みで -1000〜+1000m から選べます。</div></div>
+        <div class="field"><label for="f-target">目標ネット</label><div class="ctl"><input id="f-target" type="text" inputmode="numeric" data-f="target" data-key="target" placeholder="3:40:00" autocomplete="off"><button type="button" class="rs" data-reset="target" hidden>↺</button></div><div class="hint">例 3:40:00(空欄なら比較しません)</div></div>
+      </div>
+      <div class="panel">
+        <h2>区間ペース</h2>
+        <div id="segs"></div>
+        <div class="btns"><button class="btn primary" id="addSeg" type="button">区間を追加</button><button class="btn" id="resetSegs" type="button" hidden>区間を初期値に戻す</button></div>
+      </div>
+      <div class="btns" style="margin-top:0"><button class="btn" id="reset" type="button">すべて初期値に戻す</button></div>
+      <p class="save-note">同じパソコンで次に開いたときも、入力した値が残ります。</p>
+    </aside>
+
+    <section class="main">
+      <section class="hero" aria-live="polite" id="hero"></section>
+
+      <div class="card">
+        <div class="card-h"><h2>区間ペース</h2><p>上にあるほど速いペースです</p></div>
+        <div class="chart" id="c1"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>5kmラップ</h2><p>前半と後半のバランス</p>
+          <div class="toggle" role="group" aria-label="グラフに使うタイム" style="margin-left:auto">
+            <button type="button" data-mode="ext" aria-pressed="true">延長込み</button>
+            <button type="button" data-mode="ideal" aria-pressed="false">延長なし</button>
+          </div>
+        </div>
+        <div class="chart" id="c3"></div>
+        <p class="note" id="c3note"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>1kmごとの通過表</h2><p>青い線は区間の切り替わり、太字は5kmごと</p></div>
+        <div class="tbl-wrap"><table id="tbl"></table></div>
+        <p class="note">ラップは、設定した区間ペースです。</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+/*CORE_START*/
+const MARATHON = 42.195;
+
+function parseDur(s, twoAs){
+  s = String(s).trim().replace(/[：]/g, ':').replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  if(!/^\d+(:\d{1,2}){1,2}$/.test(s)) return null;
+  const p = s.split(':').map(Number);
+  let h = 0, m = 0, sec = 0;
+  if(p.length === 3){ [h, m, sec] = p; }
+  else if(twoAs === 'hm'){ h = p[0]; m = p[1]; }
+  else { m = p[0]; sec = p[1]; }
+  if(m > 59 || sec > 59) return null;
+  return h * 3600 + m * 60 + sec;
+}
+function parsePace(s){
+  const t = String(s).trim();
+  if(t.split(/[:：]/).length !== 2) return null;
+  const v = parseDur(t, 'ms');
+  return (v === null || v <= 0) ? null : v;
+}
+const pad2 = n => String(n).padStart(2, '0');
+function fmtHMS(t){ t = Math.round(t); return Math.floor(t / 3600) + ':' + pad2(Math.floor(t % 3600 / 60)) + ':' + pad2(t % 60); }
+function fmtMS(t){ t = Math.round(t); return Math.floor(t / 60) + ':' + pad2(t % 60); }
+function fmtClock(t){ t = Math.round(t) % 86400; return pad2(Math.floor(t / 3600)) + ':' + pad2(Math.floor(t % 3600 / 60)) + ':' + pad2(t % 60); }
+function fmtDiff(t){ t = Math.abs(Math.round(t)); return t < 60 ? t + '秒' : Math.floor(t / 60) + '分' + pad2(t % 60) + '秒'; }
+
+function parseState(st){
+  const errors = [];
+  const gun = parseDur(st.gun, 'hm');
+  if(gun === null) errors.push({key: 'gun', msg: '号砲時刻は 8:30:00 の形で入力してください'});
+  const wait = parseDur(st.wait, 'ms');
+  if(wait === null) errors.push({key: 'wait', msg: 'スタートまでは 0:03:00 または 3:00 の形で入力してください'});
+  const extN = Number(String(st.ext).trim());
+  const ext = (String(st.ext).trim() !== '' && isFinite(extN) && extN >= -1000 && extN <= 1000) ? extN : null;
+  if(ext === null) errors.push({key: 'ext', msg: '延長距離は -1000〜+1000m の範囲で選んでください'});
+  let target = null;
+  if(String(st.target).trim() !== ''){
+    target = parseDur(st.target, 'hm');
+    if(target === null) errors.push({key: 'target', msg: '目標ネットは 3:40:00 の形で入力してください'});
+  }
+  const segs = [];
+  let prev = 0;
+  st.segs.forEach((g, i) => {
+    const last = i === st.segs.length - 1;
+    const pace = parsePace(g.pace);
+    if(pace === null) errors.push({key: 'pace:' + i, msg: 'ペースは 5:25 の形で入力してください'});
+    let end = MARATHON;
+    if(!last){
+      const e = Number(String(g.end).trim());
+      if(String(g.end).trim() === '' || !isFinite(e) || e <= prev + 0.001 || e >= MARATHON - 0.001){
+        errors.push({key: 'end:' + i, msg: '区間の終了kmは、前の区間より大きく、ゴール(42.195)より小さくしてください'});
+      } else { end = e; prev = e; }
+    }
+    segs.push({end, pace});
+  });
+  return {errors, gun, wait, ext, target, segs};
+}
+
+function buildModel(p){
+  const bounds = [0];
+  const paces = [];
+  p.segs.forEach(g => { bounds.push(g.end); paces.push(g.pace); });
+  const mult = p.ext / 42195;
+  const netI = d => {
+    let t = 0;
+    for(let i = 0; i < paces.length; i++){
+      t += Math.max(0, Math.min(d, bounds[i + 1]) - bounds[i]) * paces[i];
+    }
+    return t;
+  };
+  const netE = d => netI(d) * (1 + mult);
+  const start = p.gun + p.wait;
+  const rows = [];
+  const kms = [];
+  for(let k = 0; k <= 42; k++) kms.push(k);
+  kms.push(MARATHON);
+  let prevSeg = null;
+  kms.forEach((km, idx) => {
+    const isGoal = km === MARATHON;
+    const prevKm = isGoal ? 42 : km - 1;
+    const mid = km === 0 ? 0.01 : (isGoal ? (42 + MARATHON) / 2 : km - 0.5);
+    let seg = bounds.findIndex((b, i) => i < paces.length && mid >= b && mid < bounds[i + 1]);
+    if(seg < 0) seg = paces.length - 1;
+    const r = {
+      km, isGoal, seg, segStart: prevSeg !== null && seg !== prevSeg,
+      lap: (km === 0 || isGoal) ? null : netI(km) - netI(prevKm),
+      netI: netI(km), netE: netE(km),
+      clockI: start + netI(km), clockE: start + netE(km),
+      splitI: null, splitE: null
+    };
+    if(km > 0) prevSeg = seg;
+    if(isGoal){ r.splitI = netI(km) - netI(40); r.splitE = netE(km) - netE(40); }
+    else if(km >= 5 && km % 5 === 0){ r.splitI = netI(km) - netI(km - 5); r.splitE = netE(km) - netE(km - 5); }
+    rows.push(r);
+  });
+  return {bounds, paces, mult, netI, netE, start, rows, gun: p.gun, wait: p.wait, ext: p.ext, target: p.target};
+}
+/*CORE_END*/
+
+/* ---------- state ---------- */
+const DEFAULT = {
+  race: '金沢マラソン', gun: '8:30:00', wait: '3:00', ext: '400', target: '3:40:00', mode: 'ext',
+  segs: [
+    {end: '7', pace: '5:25'}, {end: '9', pace: '5:05'}, {end: '12', pace: '5:35'},
+    {end: '20', pace: '5:00'}, {end: '40', pace: '5:05'}, {end: '', pace: '5:10'}
+  ]
+};
+const KEY = 'marathon-race-plan-v1';
+const clone = o => JSON.parse(JSON.stringify(o));
+let state = clone(DEFAULT);
+try{
+  const raw = localStorage.getItem(KEY);
+  if(raw){
+    const s = JSON.parse(raw);
+    if(s && Array.isArray(s.segs) && s.segs.length >= 1 && s.segs.every(g => g && 'pace' in g)){
+      state = Object.assign(clone(DEFAULT), s);
+      const ev = Math.round(Number(state.ext) / 50) * 50;
+      state.ext = isFinite(ev) ? String(Math.max(-1000, Math.min(1000, ev))) : DEFAULT.ext;
+      const wv = parseDur(state.wait, 'ms');
+      if(wv !== null) state.wait = fmtMS(wv);
+    }
+  }
+}catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+let M = null;
+
+/* ---------- inputs ---------- */
+const esc = t => String(t).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const signed = v => (v > 0 ? '+' : '') + v;
+function buildExtOptions(){
+  let o = '';
+  for(let v = -1000; v <= 1000; v += 50) o += '<option value="' + v + '">' + signed(v) + ' m</option>';
+  $('#f-ext').innerHTML = o;
+}
+function segsDirty(){
+  const a = state.segs, b = DEFAULT.segs;
+  if(a.length !== b.length) return true;
+  return a.some((g, i) => g.pace.trim() !== b[i].pace || (i < a.length - 1 && Number(g.end) !== Number(b[i].end)));
+}
+function updateResets(){
+  $$('[data-reset]').forEach(b => {
+    const f = b.dataset.reset;
+    const dirty = f === 'ext' ? Number(state.ext) !== Number(DEFAULT.ext) : state[f].trim() !== DEFAULT[f];
+    b.hidden = !dirty;
+    b.title = '初期値' + (f === 'ext' ? '(' + signed(Number(DEFAULT.ext)) + ' m)' : (DEFAULT[f] ? '(' + DEFAULT[f] + ')' : '')) + 'に戻す';
+    b.setAttribute('aria-label', b.title);
+  });
+  $('#resetSegs').hidden = !segsDirty();
+}
+function syncFields(){
+  $$('[data-f]').forEach(el => { el.value = state[el.dataset.f]; });
+  $$('.toggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+}
+function renderSegs(){
+  const n = state.segs.length;
+  $('#segs').innerHTML = state.segs.map((g, i) => {
+    const last = i === n - 1;
+    return '<div class="seg" data-i="' + i + '">' +
+      '<div class="seg-no">' + (i + 1) + '</div>' +
+      '<div class="range"><span class="start" data-start="' + i + '"></span><span class="tilde">〜</span>' +
+      (last ? '<span class="goal">ゴール</span>'
+            : '<input type="text" inputmode="decimal" aria-label="区間' + (i + 1) + 'の終了km" data-seg="end" data-i="' + i + '" data-key="end:' + i + '" value="' + g.end + '" autocomplete="off">') +
+      '<span class="unit">km</span></div>' +
+      '<label class="pace"><input type="text" inputmode="numeric" aria-label="区間' + (i + 1) + 'のペース" data-seg="pace" data-i="' + i + '" data-key="pace:' + i + '" value="' + g.pace + '" autocomplete="off"><span class="unit">/km</span></label>' +
+      '<button class="x" type="button" data-del="' + i + '" aria-label="区間' + (i + 1) + 'を削除"' + (n <= 1 ? ' disabled' : '') + '>×</button></div>';
+  }).join('');
+  updateStarts();
+}
+function updateStarts(){
+  let prev = 0;
+  state.segs.forEach((g, i) => {
+    const el = document.querySelector('[data-start="' + i + '"]');
+    if(el) el.textContent = String(Math.round(prev * 1000) / 1000);
+    const e = Number(g.end);
+    if(isFinite(e) && String(g.end).trim() !== '') prev = e;
+  });
+}
+
+/* ---------- colors ---------- */
+function colors(){
+  const s = getComputedStyle(document.documentElement);
+  const g = n => s.getPropertyValue(n).trim();
+  return {ink: g('--ink'), muted: g('--muted'), line: g('--line'), grid: g('--grid'), blue: g('--blue'),
+          slate: g('--slate'), band: g('--band'), panel: g('--panel'), orange: g('--orange')};
+}
+
+/* ---------- hero ---------- */
+function renderHero(){
+  const goal = M.rows[M.rows.length - 1];
+  const netE = Math.round(goal.netE), netI = Math.round(goal.netI);
+  const main = M.ext !== 0 ? netE : netI;
+  let tgt = '';
+  if(M.target !== null){
+    const diff = M.target - main;
+    tgt = '<div><dt>目標ネット ' + fmtHMS(M.target) + '</dt><dd class="jp ' + (diff >= 0 ? 'ok' : 'bad') + '">' +
+          (diff === 0 ? 'ちょうど目標' : (diff > 0 ? fmtDiff(diff) + ' の余裕' : fmtDiff(diff) + ' 超過')) + '</dd></div>';
+  } else {
+    tgt = '<div><dt>目標ネット</dt><dd class="jp">未設定</dd></div>';
+  }
+  $('#hero').innerHTML =
+    '<div class="hero-main">' + (state.race.trim() ? '<div class="hero-race">' + esc(state.race.trim()) + '</div>' : '') + '<div class="hero-label">ゴールタイム(ネット)</div>' +
+    '<div class="hero-num">' + fmtHMS(main) + '</div>' +
+    '<div class="hero-sub">' + (M.ext !== 0 ? '延長 ' + signed(M.ext) + 'm を含む、実際に走るタイム' : '延長なし') + '</div></div>' +
+    '<dl class="hero-stats" style="margin:0">' + tgt +
+    '<div><dt>ゴール時刻</dt><dd>' + fmtClock(M.ext !== 0 ? goal.clockE : goal.clockI) + '</dd></div>' +
+    '<div><dt>グロス</dt><dd>' + fmtHMS(main + M.wait) + '</dd></div>' +
+    '<div><dt>延長なしのネット</dt><dd>' + fmtHMS(netI) + '</dd></div></dl>';
+  const add = goal.netE - goal.netI;
+  $('#extInfo').innerHTML = M.ext !== 0
+    ? '加算秒数(平均)<br>' + signed(Number((add / MARATHON).toFixed(1))) + '秒/km'
+    : '加算秒数(平均)<br>0秒/km';
+}
+
+/* ---------- charts ---------- */
+function attachHover(el, svg, info){
+  const tip = el.querySelector('.tip');
+  const hv = svg.querySelector('.hv');
+  const hit = svg.querySelector('.hit');
+  if(!hit) return;
+  const vb = svg.viewBox.baseVal;
+  hit.addEventListener('mousemove', ev => {
+    const r = svg.getBoundingClientRect();
+    const x = (ev.clientX - r.left) * (vb.width / r.width);
+    const i = info(x);
+    if(!i){ tip.hidden = true; if(hv) hv.setAttribute('opacity', 0); return; }
+    if(hv){ hv.setAttribute('x1', i.x); hv.setAttribute('x2', i.x); hv.setAttribute('opacity', 1); }
+    tip.innerHTML = i.html; tip.hidden = false;
+    const er = el.getBoundingClientRect();
+    let left = ev.clientX - er.left + 14;
+    if(left + tip.offsetWidth > er.width) left = ev.clientX - er.left - tip.offsetWidth - 14;
+    tip.style.left = Math.max(0, left) + 'px';
+    tip.style.top = Math.max(0, ev.clientY - er.top - tip.offsetHeight - 10) + 'px';
+  });
+  hit.addEventListener('mouseleave', () => { tip.hidden = true; if(hv) hv.setAttribute('opacity', 0); });
+}
+
+function chartPace(){
+  const el = $('#c1'), C = colors();
+  const w = Math.max(320, el.clientWidth), h = 300, m = {l: 52, r: 16, t: 20, b: 34};
+  const iw = w - m.l - m.r, ih = h - m.t - m.b;
+  const ps = M.paces;
+  const lo = Math.floor((Math.min(...ps) - 10) / 15) * 15, hi = Math.ceil((Math.max(...ps) + 10) / 15) * 15;
+  const step = (hi - lo) > 150 ? 30 : 15;
+  const X = d => m.l + d / MARATHON * iw, Y = p => m.t + (p - lo) / (hi - lo) * ih;
+  let s = '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="区間ごとのペースの階段グラフ">';
+  for(let p = Math.ceil(lo / step) * step; p <= hi; p += step){
+    s += '<line x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(p) + '" y2="' + Y(p) + '" stroke="' + C.grid + '"/>' +
+         '<text x="' + (m.l - 8) + '" y="' + (Y(p) + 4) + '" text-anchor="end" font-size="13" fill="' + C.muted + '">' + fmtMS(p) + '</text>';
+  }
+  M.paces.forEach((p, i) => {
+    if(i % 2 === 0) s += '<rect x="' + X(M.bounds[i]) + '" y="' + m.t + '" width="' + (X(M.bounds[i + 1]) - X(M.bounds[i])) + '" height="' + ih + '" fill="' + C.band + '"/>';
+  });
+  for(let d = 0; d <= 40; d += 5){
+    s += '<text x="' + X(d) + '" y="' + (h - 12) + '" text-anchor="middle" font-size="13" fill="' + C.muted + '">' + d + '</text>';
+  }
+  s += '<text x="' + X(MARATHON) + '" y="' + (h - 12) + '" text-anchor="middle" font-size="13" fill="' + C.muted + '" class="jp">G</text>';
+  const avg = M.netI(MARATHON) / MARATHON;
+  s += '<line x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(avg) + '" y2="' + Y(avg) + '" stroke="' + C.slate + '" stroke-dasharray="5 4"/>' +
+       '<text x="' + (m.l + 6) + '" y="' + (Y(avg) - 6) + '" text-anchor="start" font-size="12.5" fill="' + C.muted + '"><tspan class="jp">平均</tspan> ' + fmtMS(avg) + '</text>';
+  let d = '';
+  M.paces.forEach((p, i) => {
+    const x0 = X(M.bounds[i]), x1 = X(M.bounds[i + 1]);
+    d += (i === 0 ? 'M' + x0 + ' ' + Y(p) : ' V' + Y(p)) + ' H' + x1;
+  });
+  s += '<path d="' + d + '" fill="none" stroke="' + C.blue + '" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>';
+  M.paces.forEach((p, i) => {
+    const cx = (X(M.bounds[i]) + X(M.bounds[i + 1])) / 2;
+    s += '<text x="' + cx + '" y="' + (Y(p) - 9) + '" text-anchor="middle" font-size="16" font-weight="600" fill="' + C.ink + '">' + fmtMS(p) + '</text>';
+  });
+  s += '<line class="hv" y1="' + m.t + '" y2="' + (m.t + ih) + '" stroke="' + C.muted + '" opacity="0"/>' +
+       '<rect class="hit" x="' + m.l + '" y="' + m.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/></svg><div class="tip" hidden></div>';
+  el.innerHTML = s;
+  attachHover(el, el.querySelector('svg'), x => {
+    const dist = (x - m.l) / iw * MARATHON;
+    if(dist < 0 || dist > MARATHON) return null;
+    let i = M.bounds.findIndex((b, j) => j < M.paces.length && dist >= b && dist < M.bounds[j + 1]);
+    if(i < 0) i = M.paces.length - 1;
+    const len = M.bounds[i + 1] - M.bounds[i];
+    return {x: X(dist), html: '区間' + (i + 1) + '：' + M.bounds[i] + '〜' + (i === M.paces.length - 1 ? 'ゴール' : M.bounds[i + 1]) + 'km<br><b>' + fmtMS(M.paces[i]) + '</b> /km　区間タイム ' + fmtHMS(len * M.paces[i])};
+  });
+}
+
+function chartSplits(){
+  const el = $('#c3'), C = colors(), ext = state.mode === 'ext';
+  const net = ext ? M.netE : M.netI, col = ext ? C.blue : C.slate;
+  const bars = [];
+  for(let i = 0; i < 8; i++) bars.push({label: (5 * i) + '–' + (5 * i + 5), v: net(5 * i + 5) - net(5 * i), shown: net(5 * i + 5) - net(5 * i), last: false});
+  const rest = MARATHON - 40, lv = net(MARATHON) - net(40);
+  bars.push({label: '40–G', v: lv, shown: lv * 5 / rest, last: true});
+  const w = Math.max(320, el.clientWidth), h = 320, m = {l: 52, r: 12, t: 26, b: 34};
+  const iw = w - m.l - m.r, ih = h - m.t - m.b;
+  const vals = bars.map(b => b.shown);
+  const lo = Math.floor((Math.min(...vals) - 45) / 30) * 30, hi = Math.ceil((Math.max(...vals) + 40) / 30) * 30;
+  const step = (hi - lo) > 360 ? 60 : 30;
+  const Y = v => m.t + (1 - (v - lo) / (hi - lo)) * ih;
+  const bw = iw / bars.length;
+  let s = '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="5kmごとのラップの棒グラフ"><defs><pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="' + col + '" opacity=".28"/><rect width="3" height="7" fill="' + col + '"/></pattern></defs>';
+  for(let v = Math.ceil(lo / step) * step; v <= hi; v += step){
+    s += '<line x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="' + C.grid + '"/>' +
+         '<text x="' + (m.l - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end" font-size="13" fill="' + C.muted + '">' + fmtMS(v) + '</text>';
+  }
+  bars.forEach((b, i) => {
+    const x = m.l + i * bw + bw * 0.19, ww = bw * 0.62, y = Y(b.shown);
+    s += '<rect x="' + x + '" y="' + y + '" width="' + ww + '" height="' + (Y(lo) - y) + '" rx="2" fill="' + (b.last ? 'url(#hatch)' : col) + '"/>' +
+         '<text x="' + (x + ww / 2) + '" y="' + (y - 7) + '" text-anchor="middle" font-size="14" font-weight="600" fill="' + C.ink + '">' + fmtMS(b.shown) + (b.last ? '*' : '') + '</text>' +
+         '<text x="' + (x + ww / 2) + '" y="' + (h - 12) + '" text-anchor="middle" font-size="13" fill="' + C.muted + '">' + b.label + '</text>';
+  });
+  s += '<rect class="hit" x="' + m.l + '" y="' + m.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/></svg><div class="tip" hidden></div>';
+  el.innerHTML = s;
+  attachHover(el, el.querySelector('svg'), x => {
+    const i = Math.min(bars.length - 1, Math.max(0, Math.floor((x - m.l) / bw)));
+    const b = bars[i];
+    return {x: -10, html: b.last ? '40km〜ゴール(' + rest.toFixed(3) + 'km)<br><b>' + fmtMS(b.v) + '</b>　5km換算 ' + fmtMS(b.shown)
+                                 : b.label + 'km<br><b>' + fmtMS(b.v) + '</b>　平均 ' + fmtMS(b.v / 5) + ' /km'};
+  });
+  $('#c3note').textContent = '縦軸は ' + fmtMS(lo) + ' から始まります。*ゴール前の ' + rest.toFixed(3) + 'km は 5km に換算した値です。';
+}
+
+/* ---------- table ---------- */
+function renderTable(){
+  let s = '<thead><tr><th rowspan="2" style="text-align:left">km</th><th colspan="4" class="grp">延長なし</th><th colspan="3" class="grp">延長込み(実走)</th></tr>' +
+          '<tr><th class="sepl">ラップ</th><th>ネット</th><th>時刻</th><th>5kラップ</th><th class="sepl">ネット</th><th>時刻</th><th>5kラップ</th></tr></thead><tbody>';
+  M.rows.forEach(r => {
+    const cls = [r.km % 5 === 0 && !r.isGoal && r.km > 0 ? 'k5' : '', r.isGoal ? 'k5' : '', r.segStart ? 'sg' : ''].join(' ').trim();
+    s += '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td class="km">' + (r.isGoal ? 'ゴール' : r.km) + '</td>' +
+      '<td class="sepl">' + (r.lap === null ? '' : fmtMS(r.lap)) + '</td>' +
+      '<td>' + fmtHMS(r.netI) + '</td><td>' + fmtClock(r.clockI) + '</td><td class="dim">' + (r.splitI === null ? '' : fmtHMS(r.splitI)) + '</td>' +
+      '<td class="sepl ext">' + fmtHMS(r.netE) + '</td><td class="ext">' + fmtClock(r.clockE) + '</td><td class="dim">' + (r.splitE === null ? '' : fmtHMS(r.splitE)) + '</td></tr>';
+  });
+  $('#tbl').innerHTML = s + '</tbody>';
+}
+
+/* ---------- update ---------- */
+function renderCharts(){
+  if(!M) return;
+  chartPace(); chartSplits();
+}
+function update(){
+  updateResets();
+  const p = parseState(state);
+  $$('input.bad').forEach(e => e.classList.remove('bad'));
+  const box = $('#err');
+  if(p.errors.length){
+    p.errors.forEach(e => { const el = document.querySelector('[data-key="' + e.key + '"]'); if(el) el.classList.add('bad'); });
+    box.innerHTML = Array.from(new Set(p.errors.map(e => e.msg))).join('<br>');
+    box.classList.add('on');
+    return;
+  }
+  box.classList.remove('on');
+  M = buildModel(p);
+  renderHero(); renderTable(); renderCharts(); save();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if(t.dataset.f){
+    state[t.dataset.f] = t.value;
+    update();
+  } else if(t.dataset.seg){
+    state.segs[Number(t.dataset.i)][t.dataset.seg] = t.value;
+    updateStarts(); update();
+  }
+});
+document.addEventListener('change', ev => {
+  const f = ev.target.dataset && ev.target.dataset.f;
+  if(f === 'gun' || f === 'wait' || f === 'target'){
+    const v = parseDur(ev.target.value, f === 'wait' ? 'ms' : 'hm');
+    if(v !== null){ const t = f === 'wait' ? fmtMS(v) : fmtHMS(v); ev.target.value = t; state[f] = t; update(); }
+  }
+});
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('button');
+  if(!t) return;
+  if(t.dataset.reset){
+    state[t.dataset.reset] = DEFAULT[t.dataset.reset]; syncFields(); update();
+  } else if(t.id === 'resetSegs'){
+    state.segs = clone(DEFAULT.segs); renderSegs(); update();
+  } else if(t.dataset.del !== undefined){
+    if(state.segs.length > 1){ state.segs.splice(Number(t.dataset.del), 1); renderSegs(); update(); }
+  } else if(t.id === 'addSeg'){
+    const n = state.segs.length;
+    const prev = n >= 2 ? Number(state.segs[n - 2].end) : 0;
+    let e = Math.round(Math.min(prev + 5, (prev + MARATHON) / 2) * 2) / 2;
+    if(!isFinite(prev) || e <= prev || e >= MARATHON) e = Math.round(((isFinite(prev) ? prev : 0) + MARATHON) / 2 * 10) / 10;
+    state.segs.splice(n - 1, 0, {end: String(e), pace: state.segs[n - 1].pace});
+    renderSegs(); update();
+  } else if(t.id === 'reset'){
+    state = clone(DEFAULT); syncFields(); renderSegs(); update();
+  } else if(t.dataset.mode){
+    state.mode = t.dataset.mode;
+    $$('.toggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+    renderCharts(); save();
+  }
+});
+window.addEventListener('resize', () => renderCharts());
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderCharts()); }catch(e){}
+
+buildExtOptions(); syncFields(); renderSegs(); update();
+</script>
+</body>
+</html>

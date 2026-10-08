@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>マラソンペースプランナー | Marathon Pace Planner</title>
-<meta name="description" content="区間ごとのペースを入力すると、1kmごとの通過時刻と5kmラップを計算するマラソンのペース計算ツールです。">
+<title>マラソンペースプランナー 金沢マラソンスペシャル | Marathon Pace Planner</title>
+<meta name="description" content="区間ごとのペースを入力して、ネットタイムなどを算出するマラソンのペース計算ツール(金沢マラソンスペシャル)です。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8F%83%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -38,12 +38,14 @@ button,input{font:inherit;color:inherit}
 .top{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:22px;padding-bottom:18px;border-bottom:4px solid var(--blue)}
 .top h1{margin:0;font-size:30px;line-height:1.2;font-weight:700;letter-spacing:.01em}
 .top h1 small{font-family:var(--num);font-size:20px;font-weight:500;letter-spacing:.04em;color:var(--muted);margin-left:14px}
-.top p{margin:6px 0 0;color:var(--muted)}
+.top h1 .special{display:block;width:fit-content;margin-top:10px;padding:4px 18px 5px;border-radius:6px;background:#c7b18a;color:#FFF000;font-family:var(--sans);font-size:clamp(18px,5.8vw,28px);font-weight:700;letter-spacing:.06em;line-height:1;white-space:nowrap}
+.lead{margin-top:12px;color:var(--muted)}
+.lead p{margin:2px 0 0}
 .grid{display:grid;grid-template-columns:372px minmax(0,1fr);gap:24px;align-items:start}
 .side{position:sticky;top:16px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 32px);overflow:auto;padding-right:2px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
 .panel h2{margin:0 0 10px;font-size:16px;font-weight:700}
-.field{display:grid;grid-template-columns:108px 1fr;align-items:center;gap:4px 10px;margin-bottom:8px}
+.field{display:grid;grid-template-columns:132px 1fr;align-items:center;gap:4px 10px;margin-bottom:8px}
 .field label{color:var(--muted);font-size:13.5px}
 .field input{width:100%;border:1px solid var(--line);background:var(--soft);border-radius:6px;padding:7px 10px;font-family:var(--num);font-size:19px;font-weight:600;letter-spacing:.02em;font-variant-numeric:tabular-nums}
 .field input[type=text].txt{font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:0}
@@ -53,7 +55,7 @@ select{width:100%;border:1px solid var(--line);background:var(--soft);border-rad
 .ctl input,.ctl select{flex:1;min-width:0;width:auto}
 .rs{flex:none;width:32px;height:34px;border:1px solid var(--blue);border-radius:6px;background:var(--blue-soft);color:var(--blue);cursor:pointer;font-size:17px;line-height:1;padding:0}
 .rs[hidden]{display:none}
-.extnote{display:grid;grid-template-columns:128px 1fr;gap:4px 10px;margin:-2px 0 10px;font-size:12.5px;color:var(--muted);line-height:1.5}
+.extnote{display:grid;grid-template-columns:132px 1fr;gap:4px 10px;margin:-2px 0 10px;font-size:12.5px;color:var(--muted);line-height:1.5}
 .extnote .l{font-family:var(--num);font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;font-variant-numeric:tabular-nums}
 .btn[hidden]{display:none}
 .hero-race{font-size:21px;font-weight:700;margin-bottom:10px;line-height:1.3;overflow-wrap:anywhere}
@@ -79,7 +81,18 @@ input.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var
 .btn.primary{border-color:var(--blue);color:var(--blue);font-weight:700}
 .err{display:none;margin-bottom:12px;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--bad) 10%,var(--panel));border:1px solid var(--bad);color:var(--bad);font-size:13.5px}
 .err.on{display:block}
-.save-note{color:var(--muted);font-size:12.5px;margin:2px 2px 0}
+.top-btns{margin-top:0}
+.ph{display:flex;align-items:baseline;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;margin-bottom:10px}
+.ph h2{margin:0}
+.ph span{color:var(--muted);font-size:12.5px}
+.help{border-left:4px solid var(--blue);scroll-margin-top:12px}
+.help[hidden]{display:none}
+.help-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.help-h h2{margin:0;font-size:17px}
+.help h3{margin:14px 0 4px;font-size:15px}
+.help p,.help li{margin:4px 0;font-size:14.5px}
+.help ul{margin:4px 0;padding-left:1.3em}
+.help dl{margin:4px 0}.help dt{font-weight:700;margin-top:8px}.help dd{margin:2px 0 0}
 
 .main{display:flex;flex-direction:column;gap:20px;min-width:0}
 .hero{display:grid;grid-template-columns:minmax(380px,1.15fr) 2fr;gap:0;background:var(--hero);color:var(--hero-ink);border-radius:12px;overflow:hidden}
@@ -100,6 +113,17 @@ input.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var
 .card-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap}
 .card-h h2{margin:0;font-size:16px;font-weight:700}
 .card-h p{margin:0;color:var(--muted);font-size:13px}
+.lapcard{container-type:inline-size}
+.lap-wrap{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+@container (min-width:760px){.lap-wrap{grid-template-columns:minmax(0,1fr) 280px;gap:22px}}
+.mini-cap{font-size:13px;font-weight:700;margin:2px 0 6px}
+.tblbox{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+table.mini th,table.mini td{padding:3px 12px}
+table.mini thead th{position:static;height:30px}
+table.mini td.km{color:var(--ink)}
+.split{margin:8px 2px 0;font-size:14px;line-height:1.5}
+.split b{font-family:var(--num);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+table.mini tr.goal td{font-weight:700;background:var(--soft);border-top:1px solid var(--line)}
 .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
 .chart{position:relative}
 .chart svg{display:block;width:100%;height:auto;overflow:visible}
@@ -143,33 +167,54 @@ td.ext{color:var(--blue)}
 <div class="app">
   <header class="top">
     <div>
-      <h1>マラソンペースプランナー<small>Marathon Pace Planner</small></h1>
-      <p>区間ごとのペースを入力すると、1kmごとの通過時刻とグラフが変わります。</p>
+      <h1>マラソンペースプランナー<small>Marathon Pace Planner</small><span class="special">金沢マラソンスペシャル</span></h1>
+      <div class="lead">
+        <p>区間ごとのペースを入力して、ネットタイムなどを算出します。</p>
+        <p>調整距離は、過去9回の金沢マラソン出場の経験値を初期値としました。</p>
+        <p>区間ペースは、特に前半の山側環状線での上り区間、下り区間などを考慮して初期値としました。</p>
+        <p>すべて自分なりに設定変更してご使用ください。</p>
+      </div>
     </div>
   </header>
 
   <div class="grid">
     <aside class="side">
+      <div class="btns top-btns"><button class="btn primary" id="helpBtn" type="button" aria-expanded="false" aria-controls="help">入力の説明</button><button class="btn" id="reset" type="button">すべての入力を初期値に戻す</button></div>
       <div class="panel">
         <h2>レース設定</h2>
         <div class="err" id="err" role="alert"></div>
         <div class="field"><label for="f-race">大会名</label><div class="ctl"><input id="f-race" class="txt" type="text" data-f="race" data-key="race" autocomplete="off"><button type="button" class="rs" data-reset="race" hidden>↺</button></div></div>
-        <div class="field"><label for="f-gun">号砲時刻</label><div class="ctl"><input id="f-gun" type="text" inputmode="numeric" data-f="gun" data-key="gun" placeholder="8:30:00" autocomplete="off"><button type="button" class="rs" data-reset="gun" hidden>↺</button></div><div class="hint">例 8:30:00</div></div>
-        <div class="field"><label for="f-wait">スタートまで</label><div class="ctl"><input id="f-wait" type="text" inputmode="numeric" data-f="wait" data-key="wait" placeholder="3:00" autocomplete="off"><button type="button" class="rs" data-reset="wait" hidden>↺</button></div><div class="hint">例 3:00</div></div>
-        <div class="field"><label for="f-ext">延長距離</label><div class="ctl"><select id="f-ext" data-f="ext" data-key="ext"></select><button type="button" class="rs" data-reset="ext" hidden>↺</button></div></div>
+        <div class="field"><label for="f-gun">号砲時刻</label><div class="ctl"><input id="f-gun" type="text" inputmode="numeric" data-f="gun" data-key="gun" placeholder="8:30" autocomplete="off"><button type="button" class="rs" data-reset="gun" hidden>↺</button></div><div class="hint">例 8時30分の場合、8:30</div></div>
+        <div class="field"><label for="f-wait">スタートまで</label><div class="ctl"><input id="f-wait" type="text" inputmode="numeric" data-f="wait" data-key="wait" placeholder="3:30" autocomplete="off"><button type="button" class="rs" data-reset="wait" hidden>↺</button></div><div class="hint">例 3分30秒の場合、3:30</div></div>
+        <div class="field"><label for="f-ext">調整距離</label><div class="ctl"><select id="f-ext" data-f="ext" data-key="ext"></select><button type="button" class="rs" data-reset="ext" hidden>↺</button></div></div>
         <div class="extnote"><div class="l" id="extInfo"></div><div class="r">公式距離とランニングウォッチの距離の想定誤差を入力します。50m刻みで -1000〜+1000m から選べます。</div></div>
-        <div class="field"><label for="f-target">目標ネット</label><div class="ctl"><input id="f-target" type="text" inputmode="numeric" data-f="target" data-key="target" placeholder="3:40:00" autocomplete="off"><button type="button" class="rs" data-reset="target" hidden>↺</button></div><div class="hint">例 3:40:00(空欄なら比較しません)</div></div>
+        <div class="field"><label for="f-target">目標のネットタイム</label><div class="ctl"><input id="f-target" type="text" inputmode="numeric" data-f="target" data-key="target" placeholder="3:55:00" autocomplete="off"><button type="button" class="rs" data-reset="target" hidden>↺</button></div><div class="hint">例 3時間40分00秒の場合、3:40:00(空欄なら比較しません)</div></div>
       </div>
       <div class="panel">
-        <h2>区間ペース</h2>
+        <div class="ph"><h2>区間ペース</h2><span>*距離の設定は1km単位です。</span></div>
         <div id="segs"></div>
         <div class="btns"><button class="btn primary" id="addSeg" type="button">区間を追加</button><button class="btn" id="resetSegs" type="button" hidden>区間を初期値に戻す</button></div>
       </div>
-      <div class="btns" style="margin-top:0"><button class="btn" id="reset" type="button">すべて初期値に戻す</button></div>
-      <p class="save-note">同じパソコンで次に開いたときも、入力した値が残ります。</p>
     </aside>
 
     <section class="main">
+      <section class="panel help" id="help" aria-labelledby="help-h" hidden>
+        <div class="help-h"><h2 id="help-h">入力の説明</h2><button class="btn" id="helpClose" type="button">表示を消す</button></div>
+        <h3>1. レース設定</h3>
+        <p>大会名から順に入力します。</p>
+        <dl>
+          <dt>スタートまで</dt><dd>号砲からスタートラインまでの想定時間</dd>
+          <dt>調整距離</dt><dd>公式距離とランニングウォッチでの距離がずれることがよくありますが、どれだけずれる想定かを設定します。これによって、調整距離を考慮した5kmラップや1kmごとの通過タイムを出力できます。</dd>
+        </dl>
+        <p>調整秒数というのは、調整距離を加味した時と加味しない時の1kmあたりのずれる秒数です。</p>
+        <p>例えばネットタイム4時間で、調整距離が+400mとすると、調整秒数は約+3秒/kmになります。これはランニングウォッチに表示される速度よりも1kmあたり、約3秒時間がかかることを意味します。</p>
+        <h3>2. 区間ペース</h3>
+        <ul>
+          <li>区間を設定します。1km毎に設定できます。</li>
+          <li>その区間をどれだけのペースで走るかを分：秒で設定します。</li>
+        </ul>
+      </section>
+
       <section class="hero" aria-live="polite" id="hero"></section>
 
       <div class="card">
@@ -177,14 +222,17 @@ td.ext{color:var(--blue)}
         <div class="chart" id="c1"></div>
       </div>
 
-      <div class="card">
-        <div class="card-h"><h2>5kmラップ</h2><p>前半と後半のバランス</p>
-          <div class="toggle" role="group" aria-label="グラフに使うタイム" style="margin-left:auto">
-            <button type="button" data-mode="ext" aria-pressed="true">延長込み</button>
-            <button type="button" data-mode="ideal" aria-pressed="false">延長なし</button>
+      <div class="card lapcard">
+        <div class="card-h"><h2>5kmラップ</h2>
+          <div class="toggle" role="group" aria-label="グラフと表に使うタイム" style="margin-left:auto">
+            <button type="button" data-mode="ext" aria-pressed="true">調整込み</button>
+            <button type="button" data-mode="ideal" aria-pressed="false">調整なし</button>
           </div>
         </div>
-        <div class="chart" id="c3"></div>
+        <div class="lap-wrap">
+          <div class="chart" id="c3"></div>
+          <div class="lap-side" id="lapTbl"></div>
+        </div>
         <p class="note" id="c3note"></p>
       </div>
 
@@ -212,6 +260,14 @@ function parseDur(s, twoAs){
   if(m > 59 || sec > 59) return null;
   return h * 3600 + m * 60 + sec;
 }
+function parseHM(s){
+  s = String(s).trim().replace(/[：]/g, ':').replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  const m = /^(\d{1,2}):(\d{2})$/.exec(s);
+  if(!m) return null;
+  const h = Number(m[1]), mi = Number(m[2]);
+  if(h > 23 || mi > 59) return null;
+  return h * 3600 + mi * 60;
+}
 function parsePace(s){
   const t = String(s).trim();
   if(t.split(/[:：]/).length !== 2) return null;
@@ -220,23 +276,24 @@ function parsePace(s){
 }
 const pad2 = n => String(n).padStart(2, '0');
 function fmtHMS(t){ t = Math.round(t); return Math.floor(t / 3600) + ':' + pad2(Math.floor(t % 3600 / 60)) + ':' + pad2(t % 60); }
+function fmtHM(t){ t = Math.round(t); return Math.floor(t / 3600) + ':' + pad2(Math.floor(t % 3600 / 60)); }
 function fmtMS(t){ t = Math.round(t); return Math.floor(t / 60) + ':' + pad2(t % 60); }
 function fmtClock(t){ t = Math.round(t) % 86400; return pad2(Math.floor(t / 3600)) + ':' + pad2(Math.floor(t % 3600 / 60)) + ':' + pad2(t % 60); }
 function fmtDiff(t){ t = Math.abs(Math.round(t)); return t < 60 ? t + '秒' : Math.floor(t / 60) + '分' + pad2(t % 60) + '秒'; }
 
 function parseState(st){
   const errors = [];
-  const gun = parseDur(st.gun, 'hm');
-  if(gun === null) errors.push({key: 'gun', msg: '号砲時刻は 8:30:00 の形で入力してください'});
+  const gun = parseHM(st.gun);
+  if(gun === null) errors.push({key: 'gun', msg: '号砲時刻は 8:30 の形(時:分)で入力してください'});
   const wait = parseDur(st.wait, 'ms');
-  if(wait === null) errors.push({key: 'wait', msg: 'スタートまでは 0:03:00 または 3:00 の形で入力してください'});
+  if(wait === null) errors.push({key: 'wait', msg: 'スタートまでは 3:30 の形(分:秒)で入力してください'});
   const extN = Number(String(st.ext).trim());
   const ext = (String(st.ext).trim() !== '' && isFinite(extN) && extN >= -1000 && extN <= 1000) ? extN : null;
-  if(ext === null) errors.push({key: 'ext', msg: '延長距離は -1000〜+1000m の範囲で選んでください'});
+  if(ext === null) errors.push({key: 'ext', msg: '調整距離は -1000〜+1000m の範囲で選んでください'});
   let target = null;
   if(String(st.target).trim() !== ''){
     target = parseDur(st.target, 'hm');
-    if(target === null) errors.push({key: 'target', msg: '目標ネットは 3:40:00 の形で入力してください'});
+    if(target === null) errors.push({key: 'target', msg: '目標のネットタイムは 3:40:00 の形で入力してください'});
   }
   const segs = [];
   let prev = 0;
@@ -246,9 +303,10 @@ function parseState(st){
     if(pace === null) errors.push({key: 'pace:' + i, msg: 'ペースは 5:25 の形で入力してください'});
     let end = MARATHON;
     if(!last){
-      const e = Number(String(g.end).trim());
-      if(String(g.end).trim() === '' || !isFinite(e) || e <= prev + 0.001 || e >= MARATHON - 0.001){
-        errors.push({key: 'end:' + i, msg: '区間の終了kmは、前の区間より大きく、ゴール(42.195)より小さくしてください'});
+      const raw = String(g.end).trim().replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+      const e = Number(raw);
+      if(!/^\d+$/.test(raw) || e <= prev || e > 42){
+        errors.push({key: 'end:' + i, msg: '区間の終了kmは、前の区間より大きい整数(1〜42)で入力してください'});
       } else { end = e; prev = e; }
     }
     segs.push({end, pace});
@@ -299,13 +357,13 @@ function buildModel(p){
 
 /* ---------- state ---------- */
 const DEFAULT = {
-  race: '金沢マラソン', gun: '8:30:00', wait: '3:00', ext: '400', target: '3:40:00', mode: 'ext',
+  race: '金沢マラソン2026', gun: '8:30', wait: '3:30', ext: '400', target: '3:55:00', mode: 'ext',
   segs: [
-    {end: '7', pace: '5:25'}, {end: '9', pace: '5:05'}, {end: '12', pace: '5:35'},
-    {end: '20', pace: '5:00'}, {end: '40', pace: '5:05'}, {end: '', pace: '5:10'}
+    {end: '7', pace: '5:35'}, {end: '9', pace: '5:30'}, {end: '12', pace: '6:00'},
+    {end: '20', pace: '5:20'}, {end: '40', pace: '5:30'}, {end: '', pace: '5:20'}
   ]
 };
-const KEY = 'marathon-race-plan-v1';
+const KEY = 'marathon-pace-planner-kanazawa-v2';
 const clone = o => JSON.parse(JSON.stringify(o));
 let state = clone(DEFAULT);
 try{
@@ -332,7 +390,7 @@ const esc = t => String(t).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;',
 const signed = v => (v > 0 ? '+' : '') + v;
 function buildExtOptions(){
   let o = '';
-  for(let v = -1000; v <= 1000; v += 50) o += '<option value="' + v + '">' + signed(v) + ' m</option>';
+  for(let v = 1000; v >= -1000; v -= 50) o += '<option value="' + v + '">' + signed(v) + ' m</option>';
   $('#f-ext').innerHTML = o;
 }
 function segsDirty(){
@@ -362,7 +420,7 @@ function renderSegs(){
       '<div class="seg-no">' + (i + 1) + '</div>' +
       '<div class="range"><span class="start" data-start="' + i + '"></span><span class="tilde">〜</span>' +
       (last ? '<span class="goal">ゴール</span>'
-            : '<input type="text" inputmode="decimal" aria-label="区間' + (i + 1) + 'の終了km" data-seg="end" data-i="' + i + '" data-key="end:' + i + '" value="' + g.end + '" autocomplete="off">') +
+            : '<input type="text" inputmode="numeric" aria-label="区間' + (i + 1) + 'の終了km" data-seg="end" data-i="' + i + '" data-key="end:' + i + '" value="' + g.end + '" autocomplete="off">') +
       '<span class="unit">km</span></div>' +
       '<label class="pace"><input type="text" inputmode="numeric" aria-label="区間' + (i + 1) + 'のペース" data-seg="pace" data-i="' + i + '" data-key="pace:' + i + '" value="' + g.pace + '" autocomplete="off"><span class="unit">/km</span></label>' +
       '<button class="x" type="button" data-del="' + i + '" aria-label="区間' + (i + 1) + 'を削除"' + (n <= 1 ? ' disabled' : '') + '>×</button></div>';
@@ -395,23 +453,23 @@ function renderHero(){
   let tgt = '';
   if(M.target !== null){
     const diff = M.target - main;
-    tgt = '<div><dt>目標ネット ' + fmtHMS(M.target) + '</dt><dd class="jp ' + (diff >= 0 ? 'ok' : 'bad') + '">' +
+    tgt = '<div><dt>目標のネットタイム ' + fmtHMS(M.target) + '</dt><dd class="jp ' + (diff >= 0 ? 'ok' : 'bad') + '">' +
           (diff === 0 ? 'ちょうど目標' : (diff > 0 ? fmtDiff(diff) + ' の余裕' : fmtDiff(diff) + ' 超過')) + '</dd></div>';
   } else {
-    tgt = '<div><dt>目標ネット</dt><dd class="jp">未設定</dd></div>';
+    tgt = '<div><dt>目標のネットタイム</dt><dd class="jp">未設定</dd></div>';
   }
   $('#hero').innerHTML =
     '<div class="hero-main">' + (state.race.trim() ? '<div class="hero-race">' + esc(state.race.trim()) + '</div>' : '') + '<div class="hero-label">ゴールタイム(ネット)</div>' +
     '<div class="hero-num">' + fmtHMS(main) + '</div>' +
-    '<div class="hero-sub">' + (M.ext !== 0 ? '延長 ' + signed(M.ext) + 'm を含む、実際に走るタイム' : '延長なし') + '</div></div>' +
+    '<div class="hero-sub">' + (M.ext !== 0 ? '調整距離 ' + signed(M.ext) + 'm を含む、実際に走るタイム' : '調整なし') + '</div></div>' +
     '<dl class="hero-stats" style="margin:0">' + tgt +
     '<div><dt>ゴール時刻</dt><dd>' + fmtClock(M.ext !== 0 ? goal.clockE : goal.clockI) + '</dd></div>' +
-    '<div><dt>グロス</dt><dd>' + fmtHMS(main + M.wait) + '</dd></div>' +
-    '<div><dt>延長なしのネット</dt><dd>' + fmtHMS(netI) + '</dd></div></dl>';
+    '<div><dt>グロスタイム</dt><dd>' + fmtHMS(main + M.wait) + '</dd></div>' +
+    '<div><dt>調整距離を考慮しない場合のネットタイム</dt><dd>' + fmtHMS(netI) + '</dd></div></dl>';
   const add = goal.netE - goal.netI;
   $('#extInfo').innerHTML = M.ext !== 0
-    ? '加算秒数(平均)<br>' + signed(Number((add / MARATHON).toFixed(1))) + '秒/km'
-    : '加算秒数(平均)<br>0秒/km';
+    ? '調整秒数(平均)<br>' + signed(Number((add / MARATHON).toFixed(1))) + '秒/km'
+    : '調整秒数(平均)<br>0秒/km';
 }
 
 /* ---------- charts ---------- */
@@ -521,7 +579,7 @@ function chartSplits(){
 
 /* ---------- table ---------- */
 function renderTable(){
-  let s = '<thead><tr><th rowspan="2" style="text-align:left">km</th><th colspan="4" class="grp">延長なし</th><th colspan="3" class="grp">延長込み(実走)</th></tr>' +
+  let s = '<thead><tr><th rowspan="2" style="text-align:left">km</th><th colspan="4" class="grp">調整なし</th><th colspan="3" class="grp">調整込み(実走)</th></tr>' +
           '<tr><th class="sepl">ラップ</th><th>ネット</th><th>時刻</th><th>5kラップ</th><th class="sepl">ネット</th><th>時刻</th><th>5kラップ</th></tr></thead><tbody>';
   M.rows.forEach(r => {
     const cls = [r.km % 5 === 0 && !r.isGoal && r.km > 0 ? 'k5' : '', r.isGoal ? 'k5' : '', r.segStart ? 'sg' : ''].join(' ').trim();
@@ -534,9 +592,23 @@ function renderTable(){
 }
 
 /* ---------- update ---------- */
+function renderLapTable(){
+  const ext = state.mode === 'ext', net = ext ? M.netE : M.netI;
+  let s = '<div class="mini-cap">5kmごとの表(' + (ext ? '調整込み' : '調整なし') + ')</div><div class="tblbox"><table class="mini"><thead><tr><th style="text-align:left">地点</th><th>ネットタイム</th><th>ラップ</th></tr></thead><tbody>';
+  for(let k = 5; k <= 40; k += 5){
+    s += '<tr><td class="km">' + k + 'km</td><td>' + fmtHMS(net(k)) + '</td><td>' + fmtMS(net(k) - net(k - 5)) + '</td></tr>';
+  }
+  const half = MARATHON / 2;
+  const f1 = Math.round(net(half)), f2 = Math.round(net(MARATHON) - net(half)), d = f2 - f1;
+  const sp = d < 0 ? '-' + fmtMS(-d) + ' ネガティブスプリット' : (d > 0 ? '+' + fmtMS(d) + ' ポジティブスプリット' : '±0:00 イーブンスプリット');
+  s += '<tr class="goal"><td class="km">ゴール</td><td>' + fmtHMS(net(MARATHON)) + '</td><td>' + fmtMS(net(MARATHON) - net(40)) + '</td></tr></tbody></table></div>' +
+       '<div class="split"><div>前半 <b>' + fmtHMS(f1) + '</b>　後半 <b>' + fmtHMS(f2) + '</b></div><div>(' + sp + ')</div></div>' +
+       '<p class="note">ゴールのラップは、40kmからゴールまで(' + (MARATHON - 40).toFixed(3) + 'km)のタイムです。</p>';
+  $('#lapTbl').innerHTML = s;
+}
 function renderCharts(){
   if(!M) return;
-  chartPace(); chartSplits();
+  chartPace(); chartSplits(); renderLapTable();
 }
 function update(){
   updateResets();
@@ -568,8 +640,8 @@ document.addEventListener('input', ev => {
 document.addEventListener('change', ev => {
   const f = ev.target.dataset && ev.target.dataset.f;
   if(f === 'gun' || f === 'wait' || f === 'target'){
-    const v = parseDur(ev.target.value, f === 'wait' ? 'ms' : 'hm');
-    if(v !== null){ const t = f === 'wait' ? fmtMS(v) : fmtHMS(v); ev.target.value = t; state[f] = t; update(); }
+    const v = f === 'gun' ? parseHM(ev.target.value) : parseDur(ev.target.value, f === 'wait' ? 'ms' : 'hm');
+    if(v !== null){ const t = f === 'gun' ? fmtHM(v) : (f === 'wait' ? fmtMS(v) : fmtHMS(v)); ev.target.value = t; state[f] = t; update(); }
   }
 });
 document.addEventListener('click', ev => {
@@ -583,11 +655,17 @@ document.addEventListener('click', ev => {
     if(state.segs.length > 1){ state.segs.splice(Number(t.dataset.del), 1); renderSegs(); update(); }
   } else if(t.id === 'addSeg'){
     const n = state.segs.length;
-    const prev = n >= 2 ? Number(state.segs[n - 2].end) : 0;
-    let e = Math.round(Math.min(prev + 5, (prev + MARATHON) / 2) * 2) / 2;
-    if(!isFinite(prev) || e <= prev || e >= MARATHON) e = Math.round(((isFinite(prev) ? prev : 0) + MARATHON) / 2 * 10) / 10;
+    const pv = n >= 2 ? Number(state.segs[n - 2].end) : 0;
+    const prev = isFinite(pv) ? Math.floor(pv) : 0;
+    let e = Math.round(Math.min(prev + 5, (prev + MARATHON) / 2));
+    if(e <= prev) e = prev + 1;
+    if(e > 42) return;
     state.segs.splice(n - 1, 0, {end: String(e), pace: state.segs[n - 1].pace});
     renderSegs(); update();
+  } else if(t.id === 'helpBtn'){
+    setHelp($('#help').hidden, true);
+  } else if(t.id === 'helpClose'){
+    setHelp(false, false);
   } else if(t.id === 'reset'){
     state = clone(DEFAULT); syncFields(); renderSegs(); update();
   } else if(t.dataset.mode){
@@ -596,6 +674,18 @@ document.addEventListener('click', ev => {
     renderCharts(); save();
   }
 });
+function setHelp(on, scroll){
+  const box = $('#help');
+  box.hidden = !on;
+  $('#helpBtn').setAttribute('aria-expanded', String(on));
+  if(on && scroll){
+    const r = box.getBoundingClientRect();
+    if(r.top < 0 || r.top > window.innerHeight * 0.6){
+      const calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      box.scrollIntoView({behavior: calm ? 'auto' : 'smooth', block: 'start'});
+    }
+  }
+}
 window.addEventListener('resize', () => renderCharts());
 try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderCharts()); }catch(e){}
 

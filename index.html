@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- 年ごとの更新(来年版の公開など)の前に、CHECKLIST.md を確認すること -->
 <html lang="ja">
 <head>
 <meta charset="utf-8">
@@ -86,8 +87,9 @@ input.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var
 .hero{transition:opacity .15s}
 .hero.stale{opacity:.35}
 .nw{white-space:nowrap}
+.gk{display:block;font-family:var(--num);font-size:11.5px;font-weight:500;color:var(--muted);line-height:1.1;letter-spacing:.02em}
 .max-note{color:var(--muted);font-size:12.5px;align-self:center}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:disabled,.btn.primary:disabled{background:var(--soft);border-color:var(--line);color:var(--muted);font-weight:400;cursor:not-allowed}
 .foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;line-height:1.7}
 .foot p{margin:0}
 .foot .ver{margin-top:8px;font-family:var(--num);font-size:13px;letter-spacing:.03em}
@@ -178,10 +180,8 @@ td.ext{color:var(--blue)}
     <div>
       <h1>マラソンペースプランナー<small>Marathon Pace Planner</small><span class="special">金沢マラソンスペシャル</span></h1>
       <div class="lead">
-        <p>区間ごとのペースを入力して、ネットタイムなどを算出します。</p>
-        <p>調整距離は、過去9回の金沢マラソン出場の経験値を初期値としました。</p>
-        <p>区間ペースは、特に前半の山側環状線での上り区間、下り区間などを考慮して初期値としました。</p>
-        <p>すべて自分なりに設定変更してご使用ください。</p>
+        <p>設定した区間ごとのペースを入力して、ネットタイムなどを算出します。</p>
+        <p>区間分けやペース、調整距離は、過去の金沢マラソン出場の経験値をもとに、サブ４あたりを想定して初期値を入れています。</p>
       </div>
     </div>
   </header>
@@ -197,12 +197,13 @@ td.ext{color:var(--blue)}
         <div class="field"><label for="f-wait">スタートまで</label><div class="ctl"><input id="f-wait" type="text" inputmode="numeric" data-f="wait" data-key="wait" placeholder="3:30" autocomplete="off"><button type="button" class="rs" data-reset="wait" hidden>↺</button></div><div class="hint">例 3分30秒の場合、3:30 <span class="nw">または 330</span></div></div>
         <div class="field"><label for="f-ext">調整距離</label><div class="ctl"><select id="f-ext" data-f="ext" data-key="ext"></select><button type="button" class="rs" data-reset="ext" hidden>↺</button></div></div>
         <div class="extnote"><div class="l" id="extInfo"></div><div class="r">公式距離とランニングウォッチの距離の想定誤差を入力します。50m刻みで -1000〜+1000m から選べます。</div></div>
-        <div class="field"><label for="f-target">目標のネットタイム</label><div class="ctl"><input id="f-target" type="text" inputmode="numeric" data-f="target" data-key="target" placeholder="3:55:00" autocomplete="off"><button type="button" class="rs" data-reset="target" hidden>↺</button></div><div class="hint">例 3時間40分00秒の場合、3:40:00 <span class="nw">または 34000</span>(最大12:00:00、空欄なら比較しません)</div></div>
+        <div class="field"><label for="f-target">目標のネットタイム</label><div class="ctl"><input id="f-target" type="text" inputmode="numeric" data-f="target" data-key="target" placeholder="3:56:00" autocomplete="off"><button type="button" class="rs" data-reset="target" hidden>↺</button></div><div class="hint">例 3時間40分00秒の場合、3:40:00 <span class="nw">または 34000</span>(最大12:00:00、空欄なら比較しません)</div></div>
       </div>
       <div class="panel">
         <div class="ph"><h2>区間ペース</h2><span>*距離の設定は1km単位です。</span></div>
+        <div class="err" id="errSeg" role="alert"></div>
         <div id="segs"></div>
-        <div class="btns"><button class="btn primary" id="addSeg" type="button">区間を追加</button><button class="btn" id="resetSegs" type="button" hidden>区間を初期値に戻す</button><span class="max-note" id="maxNote" hidden>区間は最大20までです</span></div>
+        <div class="btns"><button class="btn primary" id="addSeg" type="button">区間を追加</button><button class="btn" id="resetSegs" type="button" hidden>区間を初期値に戻す</button><span class="max-note" id="maxNote" hidden></span></div>
       </div>
     </aside>
 
@@ -260,7 +261,8 @@ td.ext{color:var(--blue)}
     <p>非公式の、個人が作ったツールです。金沢マラソンの主催者・運営とは関係ありません。</p>
     <p>計算結果は目安です。ご利用は自己責任でお願いします。</p>
     <p>入力した値は、お使いのブラウザにだけ保存され、外部には送信されません。</p>
-    <p class="ver">Ver. 1.1.0(2026年10月12日版)</p>
+    <p>なお、文字の書体(Googleフォント)は、Googleから読み込んでいます。ページを開く際、お使いの端末のIPアドレスなどがGoogleに送信されます。</p>
+    <p class="ver">Ver. 1.2.2(2026年10月13日版)</p>
   </footer>
 </div>
 
@@ -395,9 +397,9 @@ function buildModel(p){
 
 /* ---------- state ---------- */
 const DEFAULT = {
-  race: '金沢マラソン2026', gun: '8:30', wait: '3:30', ext: '400', target: '3:55:00', mode: 'ext',
+  race: '金沢マラソン2026', gun: '8:30', wait: '4:00', ext: '400', target: '3:56:00', mode: 'ext',
   segs: [
-    {end: '7', pace: '5:35'}, {end: '9', pace: '5:30'}, {end: '12', pace: '6:00'},
+    {end: '7', pace: '5:40'}, {end: '9', pace: '5:30'}, {end: '12', pace: '6:00'},
     {end: '20', pace: '5:20'}, {end: '40', pace: '5:30'}, {end: '', pace: '5:20'}
   ]
 };
@@ -477,8 +479,6 @@ function renderSegs(){
       '<button class="x" type="button" data-del="' + i + '" aria-label="区間' + (i + 1) + 'を削除"' + (n <= 1 ? ' disabled' : '') + '>×</button></div>';
   }).join('');
   updateStarts();
-  $('#addSeg').disabled = n >= MAX_SEGS;
-  $('#maxNote').hidden = n < MAX_SEGS;
 }
 function updateStarts(){
   let prev = 0;
@@ -488,6 +488,17 @@ function updateStarts(){
     const e = Number(g.end);
     if(isFinite(e) && String(g.end).trim() !== '') prev = e;
   });
+  updateAddBtn();
+}
+function updateAddBtn(){
+  const n = state.segs.length;
+  const last = n >= 2 ? Number(norm(state.segs[n - 2].end)) : 0;
+  let why = '';
+  if(n >= MAX_SEGS) why = '区間は最大20までです';
+  else if(isFinite(last) && last >= 42) why = '最後の区間が42km〜ゴールのため、追加できません';
+  $('#addSeg').disabled = !!why;
+  const note = $('#maxNote');
+  note.textContent = why; note.hidden = !why;
 }
 
 /* ---------- colors ---------- */
@@ -636,7 +647,7 @@ function renderTable(){
           '<tr><th class="sepl">ラップ</th><th>ネット</th><th>時刻</th><th>5kラップ</th><th class="sepl">ネット</th><th>時刻</th><th>5kラップ</th></tr></thead><tbody>';
   M.rows.forEach(r => {
     const cls = [r.km % 5 === 0 && !r.isGoal && r.km > 0 ? 'k5' : '', r.isGoal ? 'k5' : '', r.segStart ? 'sg' : ''].join(' ').trim();
-    s += '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td class="km">' + (r.isGoal ? 'ゴール' : r.km) + '</td>' +
+    s += '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td class="km">' + (r.isGoal ? 'ゴール<small class="gk">42.195km</small>' : r.km) + '</td>' +
       '<td class="sepl">' + (r.lap === null ? '' : fmtMS(r.lap)) + '</td>' +
       '<td>' + fmtHMS(r.netI) + '</td><td>' + fmtClock(r.clockI) + '</td><td class="dim">' + (r.splitI === null ? '' : fmtHMS(r.splitI)) + '</td>' +
       '<td class="sepl ext">' + fmtHMS(r.netE) + '</td><td class="ext">' + fmtClock(r.clockE) + '</td><td class="dim">' + (r.splitE === null ? '' : fmtHMS(r.splitE)) + '</td></tr>';
@@ -654,20 +665,24 @@ function renderLapTable(){
   const half = MARATHON / 2;
   const f1 = net(half), f2 = net(MARATHON) - net(half), d = f2 - f1;
   const sp = d < 0 ? '-' + fmtMS(-d) + ' ネガティブスプリット' : (d > 0 ? '+' + fmtMS(d) + ' ポジティブスプリット' : '±0:00 イーブンスプリット');
-  s += '<tr class="goal"><td class="km">ゴール</td><td>' + fmtHMS(net(MARATHON)) + '</td><td>' + fmtMS(net(MARATHON) - net(40)) + '</td></tr></tbody></table></div>' +
-       '<div class="split"><div>前半 <b>' + fmtHMS(f1) + '</b>　後半 <b>' + fmtHMS(f2) + '</b></div><div>(' + sp + ')</div></div>' +
-       '<p class="note">ゴールのラップは、40kmからゴールまで(' + (MARATHON - 40).toFixed(3) + 'km)のタイムです。</p>';
+  s += '<tr class="goal"><td class="km">ゴール<small class="gk">42.195km</small></td><td>' + fmtHMS(net(MARATHON)) + '</td><td>' + fmtMS(net(MARATHON) - net(40)) + '</td></tr></tbody></table></div>' +
+       '<div class="split"><div>前半 <b>' + fmtHMS(f1) + '</b>　後半 <b>' + fmtHMS(f2) + '</b></div><div>(' + sp + ')</div></div>';
   $('#lapTbl').innerHTML = s;
 }
 function renderCharts(){
   if(!M) return;
   chartPace(); chartSplits(); renderLapTable();
 }
+function setErr(sel, list){
+  const box = $(sel);
+  box.innerHTML = Array.from(new Set(list.map(e => e.msg))).join('<br>');
+  box.classList.toggle('on', list.length > 0);
+}
 function showErrors(list){
   list.forEach(e => { const el = document.querySelector('[data-key="' + e.key + '"]'); if(el) el.classList.add('bad'); });
-  const box = $('#err');
-  box.innerHTML = Array.from(new Set(list.map(e => e.msg))).join('<br>');
-  box.classList.add('on');
+  const isSeg = e => /^(end|pace):/.test(e.key);   // 区間の入力エラーは、区間ペースの枠に出す
+  setErr('#err', list.filter(e => !isSeg(e)));
+  setErr('#errSeg', list.filter(isSeg));
   const hero = $('#hero');
   hero.classList.add('stale');
   if(!M) hero.innerHTML = '<div class="hero-main"><div class="hero-label">入力を確認してください</div></div>';
@@ -683,7 +698,7 @@ function update(){
     showErrors([{key: 'gun', msg: 'ゴール時刻が24:00を過ぎます。日付をまたぐ設定はできないので、号砲時刻やペースを見直してください'}]);
     return;
   }
-  $('#err').classList.remove('on');
+  setErr('#err', []); setErr('#errSeg', []);
   $('#hero').classList.remove('stale');
   M = cand;
   renderHero(); renderTable(); renderCharts(); save();
@@ -730,13 +745,16 @@ document.addEventListener('click', ev => {
   } else if(t.id === 'addSeg'){
     const n = state.segs.length;
     if(n >= MAX_SEGS) return;
-    const pv = n >= 2 ? Number(state.segs[n - 2].end) : 0;
+    const pv = n >= 2 ? Number(norm(state.segs[n - 2].end)) : 0;
     const prev = isFinite(pv) ? Math.floor(pv) : 0;
     let e = Math.round(Math.min(prev + 5, (prev + MARATHON) / 2));
     if(e <= prev) e = prev + 1;
     if(e > 42) return;
     state.segs.splice(n - 1, 0, {end: String(e), pace: state.segs[n - 1].pace});
     renderSegs(); update();
+    const side = $('.side');   // 追加ボタンが見える位置までスクロール(続けて追加しやすくする)
+    if(side.scrollHeight > side.clientHeight + 1) side.scrollTop = side.scrollHeight;
+    $('#addSeg').parentElement.scrollIntoView({block: 'nearest'});
   } else if(t.id === 'helpBtn'){
     setHelp($('#help').hidden, true);
   } else if(t.id === 'helpClose'){

@@ -58,6 +58,12 @@ select{width:100%;border:1px solid var(--line);background:var(--soft);border-rad
 .rs[hidden]{display:none}
 .extnote{display:grid;grid-template-columns:132px 1fr;gap:4px 10px;margin:-2px 0 10px;font-size:12.5px;color:var(--muted);line-height:1.5}
 .extnote .l{font-family:var(--num);font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;font-variant-numeric:tabular-nums}
+.perkm-l{display:block}
+/* 設定で変わる計算結果: 入力欄と区別するため、枠なしの色付きの札にする */
+.perkm{display:inline-block;margin-top:4px;padding:1px 10px 2px;border-radius:999px;background:color-mix(in srgb,var(--blue) 12%,transparent);color:var(--blue);font-family:var(--num);font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.3}
+.perkm.flash{animation:perkm-flash .9s ease-out}
+@keyframes perkm-flash{from{background:color-mix(in srgb,var(--blue) 38%,transparent)}to{background:color-mix(in srgb,var(--blue) 12%,transparent)}}
+@media (prefers-reduced-motion: reduce){.perkm.flash{animation:none}}
 .btn[hidden]{display:none}
 .hero-race{font-size:21px;font-weight:700;margin-bottom:10px;line-height:1.3;overflow-wrap:anywhere}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
@@ -196,7 +202,7 @@ td.ext{color:var(--blue)}
         <div class="field"><label for="f-gun">号砲時刻</label><div class="ctl"><input id="f-gun" type="text" inputmode="numeric" data-f="gun" data-key="gun" placeholder="8:30" autocomplete="off"><button type="button" class="rs" data-reset="gun" hidden>↺</button></div><div class="hint">例 8時30分の場合、8:30 <span class="nw">または 830</span></div></div>
         <div class="field"><label for="f-wait">スタートまで</label><div class="ctl"><input id="f-wait" type="text" inputmode="numeric" data-f="wait" data-key="wait" placeholder="3:30" autocomplete="off"><button type="button" class="rs" data-reset="wait" hidden>↺</button></div><div class="hint">例 3分30秒の場合、3:30 <span class="nw">または 330</span></div></div>
         <div class="field"><label for="f-ext">調整距離</label><div class="ctl"><select id="f-ext" data-f="ext" data-key="ext"></select><button type="button" class="rs" data-reset="ext" hidden>↺</button></div></div>
-        <div class="extnote"><div class="l" id="extInfo"></div><div class="r">公式距離とランニングウォッチの距離の想定誤差を入力します。50m刻みで -1000〜+1000m から選べます。</div></div>
+        <div class="extnote"><div class="l"><span class="perkm-l">1kmあたり</span><output class="perkm" id="extInfo" for="f-ext" aria-live="polite"></output></div><div class="r">公式距離とランニングウォッチの距離の想定誤差を入力します。50m刻みで -1000〜+1000m から選べます。</div></div>
         <div class="field"><label for="f-target">目標のネットタイム</label><div class="ctl"><input id="f-target" type="text" inputmode="numeric" data-f="target" data-key="target" placeholder="3:56:00" autocomplete="off"><button type="button" class="rs" data-reset="target" hidden>↺</button></div><div class="hint">例 3時間40分00秒の場合、3:40:00 <span class="nw">または 34000</span>(最大12:00:00、空欄なら比較しません)</div></div>
       </div>
       <div class="panel">
@@ -217,8 +223,9 @@ td.ext{color:var(--blue)}
           <dt>スタートまで</dt><dd>号砲からスタートラインまでの想定時間(0:00〜59:59)</dd>
           <dt>調整距離</dt><dd>公式距離とランニングウォッチでの距離がずれることがよくありますが、どれだけずれる想定かを設定します。これによって、調整距離を考慮した5kmラップや1kmごとの通過タイムを出力できます。</dd>
         </dl>
-        <p>調整秒数というのは、調整距離を加味した時と加味しない時の1kmあたりのずれる秒数です。</p>
-        <p>例えばネットタイム4時間で、調整距離が+400mとすると、調整秒数は約+3秒/kmになります。これはランニングウォッチに表示される速度よりも1kmあたり、約3秒時間がかかることを意味します。</p>
+        <p>「1kmあたり」は、調整距離を、公式の1kmごとに割り振った距離です。</p>
+        <p>例えば調整距離を+400mとすると、1kmあたり約+9.5mになります。これは、公式の1kmを走る間に、ランニングウォッチでは約9.5m長く測られることを意味します。</p>
+        <p>区間ペースは、調整を気にせず、ランニングウォッチに表示されるペースで設定してください。</p>
         <h3>2. 区間ペース</h3>
         <ul>
           <li>区間を設定します。1km毎に設定できます。</li>
@@ -262,7 +269,7 @@ td.ext{color:var(--blue)}
     <p>計算結果は目安です。ご利用は自己責任でお願いします。</p>
     <p>入力した値は、お使いのブラウザにだけ保存され、外部には送信されません。</p>
     <p>なお、文字の書体(Googleフォント)は、Googleから読み込んでいます。ページを開く際、お使いの端末のIPアドレスなどがGoogleに送信されます。</p>
-    <p class="ver">Ver. 1.2.2(2026年10月13日版)</p>
+    <p class="ver">Ver. 1.2.3(2026年10月14日版)</p>
   </footer>
 </div>
 
@@ -530,10 +537,6 @@ function renderHero(){
     '<div><dt>ゴール時刻</dt><dd>' + fmtClock(M.ext !== 0 ? goal.clockE : goal.clockI) + '</dd></div>' +
     '<div><dt>グロスタイム</dt><dd>' + fmtHMS(main + M.wait) + '</dd></div>' +
     '<div><dt>調整距離を考慮しない場合のネットタイム</dt><dd>' + fmtHMS(netI) + '</dd></div></dl>';
-  const add = M.rawE(MARATHON) - M.rawI(MARATHON);
-  $('#extInfo').innerHTML = M.ext !== 0
-    ? '調整秒数(平均)<br>' + signed(Number((add / MARATHON).toFixed(1))) + '秒/km'
-    : '調整秒数(平均)<br>0秒/km';
 }
 
 /* ---------- charts ---------- */
@@ -687,8 +690,20 @@ function showErrors(list){
   hero.classList.add('stale');
   if(!M) hero.innerHTML = '<div class="hero-main"><div class="hero-label">入力を確認してください</div></div>';
 }
+/* 1kmあたりの調整距離(m)。小数点以下第2位を四捨五入(例 +400m → +9.5m、+200m → +4.7m) */
+function renderPerKm(){
+  const ext = Number(state.ext);
+  const v = Math.round(Math.abs(ext) / MARATHON * 10) / 10;
+  const txt = !isFinite(ext) ? '' : (ext === 0 ? '0m' : (ext > 0 ? '+' : '-') + v.toFixed(1) + 'm');
+  const out = $('#extInfo');
+  if(out.textContent === txt) return;
+  const first = out.textContent === '';
+  out.textContent = txt;
+  if(!first){ out.classList.remove('flash'); void out.offsetWidth; out.classList.add('flash'); }
+}
 function update(){
   updateResets();
+  renderPerKm();
   const p = parseState(state);
   $$('input.bad').forEach(e => e.classList.remove('bad'));
   if(p.errors.length){ showErrors(p.errors); return; }

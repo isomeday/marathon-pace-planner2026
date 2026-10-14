@@ -125,6 +125,10 @@ input.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var
 .hero-stats dd{margin:2px 0 0;font-family:var(--num);font-size:34px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums}
 .hero-stats dd.ok{color:var(--hero-ok)} .hero-stats dd.bad{color:var(--hero-bad)}
 .hero-stats dd.jp{font-family:var(--sans);font-size:24px;font-weight:700}
+.hero-avg{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 32px;padding:14px 28px 16px;border-top:1px solid rgba(255,255,255,.12)}
+.hero-avg .lbl{color:var(--hero-muted);font-size:13px}
+.hero-avg .v{color:var(--hero-muted);font-size:14px;white-space:nowrap}
+.hero-avg b{font-family:var(--num);font-size:32px;font-weight:600;color:var(--hero-ink);font-variant-numeric:tabular-nums;margin:0 4px}
 
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 18px 12px;min-width:0}
 .card-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap}
@@ -177,6 +181,7 @@ td.ext{color:var(--blue)}
   .hero{grid-template-columns:1fr}
   .hero-stats{border-left:0;border-top:1px solid rgba(255,255,255,.12)}
   .hero-num{font-size:72px}
+.hero-avg .lbl{flex-basis:100%}
 }
 </style>
 </head>
@@ -269,7 +274,7 @@ td.ext{color:var(--blue)}
     <p>計算結果は目安です。ご利用は自己責任でお願いします。</p>
     <p>入力した値は、お使いのブラウザにだけ保存され、外部には送信されません。</p>
     <p>なお、文字の書体(Googleフォント)は、Googleから読み込んでいます。ページを開く際、お使いの端末のIPアドレスなどがGoogleに送信されます。</p>
-    <p class="ver">Ver. 1.2.3(2026年10月14日版)</p>
+    <p class="ver">Ver. 1.3.0(2026年10月14日版)</p>
   </footer>
 </div>
 
@@ -447,6 +452,12 @@ let M = null;
 
 /* ---------- inputs ---------- */
 const esc = t => String(t).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+/* 公式距離42.195kmあたりの平均ペース。小数第2位を四捨五入して小数1桁(例 5:34.5)。
+   小数の誤差を避けるため整数で計算: round(t ÷ 42.195 × 10) = floor((20000t + 42195) ÷ 84390)。59.95秒は 6:00.0 に繰り上がる */
+function fmtAvgPace(t){
+  const tenths = Math.floor((20000 * CEIL(t) + 42195) / 84390);
+  return Math.floor(tenths / 600) + ':' + pad2(Math.floor(tenths % 600 / 10)) + '.' + (tenths % 10);
+}
 const signed = v => (v > 0 ? '+' : '') + v;
 function buildExtOptions(){
   let o = '';
@@ -536,7 +547,10 @@ function renderHero(){
     '<dl class="hero-stats" style="margin:0">' + tgt +
     '<div><dt>ゴール時刻</dt><dd>' + fmtClock(M.ext !== 0 ? goal.clockE : goal.clockI) + '</dd></div>' +
     '<div><dt>グロスタイム</dt><dd>' + fmtHMS(main + M.wait) + '</dd></div>' +
-    '<div><dt>調整距離を考慮しない場合のネットタイム</dt><dd>' + fmtHMS(netI) + '</dd></div></dl>';
+    '<div><dt>調整距離を考慮しない場合のネットタイム</dt><dd>' + fmtHMS(netI) + '</dd></div></dl>' +
+    '<div class="hero-avg"><span class="lbl">平均ペース(公式距離42.195kmあたり)</span>' +
+    '<span class="v">ネット<b>' + fmtAvgPace(main) + '</b>/km</span>' +
+    '<span class="v">グロス<b>' + fmtAvgPace(main + M.wait) + '</b>/km</span></div>';
 }
 
 /* ---------- charts ---------- */
@@ -584,7 +598,7 @@ function chartPace(){
   s += '<text x="' + X(MARATHON) + '" y="' + (h - 12) + '" text-anchor="middle" font-size="13" fill="' + C.muted + '" class="jp">G</text>';
   const avg = M.netI(MARATHON) / MARATHON;
   s += '<line x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(avg) + '" y2="' + Y(avg) + '" stroke="' + C.slate + '" stroke-dasharray="5 4"/>' +
-       '<text x="' + (m.l + 6) + '" y="' + (Y(avg) - 6) + '" text-anchor="start" font-size="12.5" fill="' + C.muted + '"><tspan class="jp">平均</tspan> ' + fmtMS(avg) + '</text>';
+       '<text x="' + (m.l + 6) + '" y="' + (Y(avg) - 6) + '" text-anchor="start" font-size="12.5" fill="' + C.muted + '"><tspan class="jp">設定ペースの平均</tspan> ' + fmtMS(avg) + '</text>';
   let d = '';
   M.paces.forEach((p, i) => {
     const x0 = X(M.bounds[i]), x1 = X(M.bounds[i + 1]);

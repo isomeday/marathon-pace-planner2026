@@ -4,7 +4,7 @@ Marathon Pace Planner (Kanazawa Marathon Special)
 
 区間ごとのペースを入力して、ネットタイム・グロスタイム・5kmラップ・1kmごとの通過タイムなどを計算する、マラソンのペース計算ツールです。
 
-**▶ アプリを開く: https://（ユーザー名）.github.io/marathon-pace-planner2026/**
+**▶ アプリを開く: https://isomeday.github.io/marathon-pace-planner2026/**
 
 （ここに画面のスクリーンショットを1枚入れると、伝わりやすくなります）
 

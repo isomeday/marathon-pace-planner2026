@@ -6,7 +6,6 @@ Marathon Pace Planner (Kanazawa Marathon Special)
 
 **▶ アプリを開く: https://isomeday.github.io/marathon-pace-planner2026/**
 
-（ここに画面のスクリーンショットを1枚入れると、伝わりやすくなります）
 
 ## できること
 
@@ -54,7 +53,7 @@ Marathon Pace Planner (Kanazawa Marathon Special)
 
 ## 不具合・ご意見
 
-（連絡先を書きます。例: GitHubの Issues、YouTubeの動画へのコメントなど）
+YouTubeの動画へのコメントでお願いします。
 
 ## ライセンス
 

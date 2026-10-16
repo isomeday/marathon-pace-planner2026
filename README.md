@@ -55,6 +55,3 @@ Marathon Pace Planner (Kanazawa Marathon Special)
 
 YouTubeの動画へのコメントでお願いします。
 
-## ライセンス
-
-（決まったら書きます。決めていない間は、この項目ごと消しても構いません）
